@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Converter</title>
+</head>
+
+<body>
+    <h1 class="headline">Converter</h1>
+    <select class="types">
+    </select>
+    <p>
+        <label>₴</label>
+        <input type="number" placeholder="100">
+    </p>
+    <p>Total:<span class='totalHrn'></span> </p>
+
+
+
+    <script>
+
+        const types = document.querySelector('.types');
+        const totalHrn = document.querySelector('.totalHrn');
+        const input = document.querySelector('input');
+
+        function loading() {
+            if (xhr.status === 200) {
+                const currency = JSON.parse(xhr.response)
+                renderData(currency);
+            }
+        };
+
+        function renderData(data) {
+            for (let obj of data) {
+                const option = document.createElement('option');
+                option.innerText = obj.txt;
+                option.value = obj.rate
+                let rate = obj.rate;
+                types.append(option);
+            }
+        };
+        function recalculate_input(rate, amount) {
+            if (rate === undefined) {
+                rate = types.value;
+            }
+            if (amount === undefined) {
+                amount = input.value;
+            }
+            const calc = parseFloat(rate) * parseFloat(amount);
+            //console.log(calc, rate, amount);
+            totalHrn.innerText = isNaN(calc) ? ' ' : calc;
+        };
+
+        types.addEventListener('change', function (e) {
+            const new_rate = e.target.value;
+            recalculate_input(new_rate, undefined);
+        });
+
+        input.addEventListener('keyup', e => {
+            const new_value = e.target.value;
+            recalculate_input(undefined, new_value);
+        });
+
+        const xhr = new XMLHttpRequest();
+        xhr.open('GET', 'https://old.bank.gov.ua/NBUStatService/v1/statdirectory/exchange?jsons');
+        xhr.send();
+        xhr.onload = loading;
+
+
+    </script>
+
+
+
+</body>
+
+</html>
